@@ -44,8 +44,8 @@ def create_app():
     
     # Configura CORS para permitir peticiones desde nuestro frontend de React
     # (que se ejecutará en un origen diferente, ej: http://localhost:3000)
+    # EJEMPLO - USA LA URL DE TU FRONTEND
     CORS(app)
-
 
     # --- Importación y Registro de Modelos ---
     # Es crucial que los modelos se importen después de inicializar db
