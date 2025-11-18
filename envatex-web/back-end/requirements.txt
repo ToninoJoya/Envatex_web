@@ -1,0 +1,12 @@
+# requirements.txt for a Flask API with SQLAlchemy and database migrations
+#
+# Core framework
+Flask
+# ORM (Object-Relational Mapper)
+Flask-SQLAlchemy
+# For handling database schema migrations
+Flask-Migrate
+# For handling Cross-Origin Resource Sharing (CORS) to allow React app to connect
+Flask-Cors
+# For loading environment variables from a .env file
+python-dotenv
