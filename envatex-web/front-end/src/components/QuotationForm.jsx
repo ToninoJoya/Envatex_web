@@ -1,122 +1,115 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Form, Button, Card, ListGroup, Alert, Row, Col } from 'react-bootstrap';
+import { Card, Button, Form, Table, Alert } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 
-// QuotationForm.jsx
-// A form for customers to enter their details and submit their quotation request.
-
-function QuotationForm({ items = [], onRemoveItem }) {
-  // 6. Inside the component, use useState to manage the form data:
+function QuotationForm({ items = [], onRemoveItem, onClearCart }) {
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [submissionStatus, setSubmissionStatus] = useState(null); // null | 'loading' | 'success' | 'error'
+  const [errorMsg, setErrorMsg] = useState(null);
 
-  // 7. Define an async function 'handleSubmit'.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmissionStatus('loading');
-
-    // Transform items prop into array of { product_id, quantity }
-    const payloadItems = items.map((it) => {
-      // Support both shapes: { product, quantity } or { product_id, quantity }
-      const productId = it.product?.id ?? it.product_id ?? it.productId ?? null;
-      return {
-        product_id: productId,
-        quantity: it.quantity ?? 1,
-      };
-    });
-
-    const payload = {
-      customer_name: customerName,
-      customer_email: customerEmail,
-      items: payloadItems,
-    };
-
+    setErrorMsg(null);
     try {
-      // Use local backend address; change if deploying elsewhere
-      const url = 'https://didactic-space-fiesta-g4r6x4549q9xfpvq5-5000.app.github.dev/api/quotations';
-      await axios.post(url, payload);
-      setSubmissionStatus('success');
-      // Optionally clear form
+      const API_BASE = process.env.REACT_APP_API_URL || 'https://didactic-space-fiesta-g4r6x4549q9xfpvq5-5000.app.github.dev/';
+      const payloadItems = items.map((it) => ({
+        product_id: it.product?.id ?? it.product_id ?? it.productId ?? null,
+        quantity: it.quantity ?? 1,
+      }));
+      const payload = {
+        customer_name: customerName,
+        customer_email: customerEmail,
+        items: payloadItems,
+      };
+      await axios.post(`${API_BASE}/api/quotations`, payload);
       setCustomerName('');
       setCustomerEmail('');
+      if (typeof onClearCart === 'function') onClearCart();
+      setSubmissionStatus('success');
+      await Swal.fire({
+        title: '¡Cotización Enviada!',
+        text: 'Nos pondremos en contacto contigo pronto a ' + customerEmail,
+        icon: 'success',
+        confirmButtonColor: 'var(--secondary-blue)',
+        confirmButtonText: 'Genial'
+      });
+      setSubmissionStatus(null);
     } catch (err) {
       setSubmissionStatus('error');
+      setErrorMsg('No se pudo enviar la solicitud. Intenta más tarde.');
+    } finally {
+      setSubmissionStatus(null);
     }
   };
 
   return (
-    <Card>
-      <Card.Header>Solicitud de Cotización</Card.Header>
+    <Card className="shadow-sm border-0">
+      <div className="p-4 rounded-top" style={{ backgroundColor: 'var(--primary-navy)' }}>
+        <h4 className="text-white mb-0">
+          <i className="fas fa-file-invoice-dollar me-2"></i>
+          Resumen de Cotización
+        </h4>
+      </div>
       <Card.Body>
-        {items.length === 0 ? (
-          <p>Añade productos a tu cotización para continuar.</p>
-        ) : (
-          <>
-            <ListGroup className="mb-3">
-              {items.map((it, idx) => {
-                const productId = it.product?.id ?? it.product_id ?? null;
-                const name = it.product?.name ?? it.name ?? `Producto ${productId ?? idx}`;
-                const qty = it.quantity ?? 1;
-                return (
-                  <ListGroup.Item key={idx}>
-                    <Row className="align-items-center">
-                      <Col>
-                        {name} — Cantidad: {qty}
-                      </Col>
-                      <Col xs="auto">
-                        <Button
-                          variant="outline-secondary"
-                          size="sm"
-                          onClick={() => onRemoveItem && onRemoveItem(productId)}
-                          className="me-2"
-                        >
-                          −
-                        </Button>
-                      </Col>
-                    </Row>
-                  </ListGroup.Item>
-                );
-              })}
-            </ListGroup>
-
-            {submissionStatus === 'success' && (
-              <Alert variant="success">Tu solicitud se envió correctamente.</Alert>
-            )}
-            {submissionStatus === 'error' && (
-              <Alert variant="danger">Ocurrió un error al enviar la solicitud. Intenta nuevamente.</Alert>
-            )}
-
-            <Form onSubmit={handleSubmit}>
-              <Form.Group className="mb-3" controlId="qfName">
-                <Form.Label>Nombre</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  required
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3" controlId="qfEmail">
-                <Form.Label>Correo electrónico</Form.Label>
-                <Form.Control
-                  type="email"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  required
-                />
-              </Form.Group>
-
-              <Button
-                type="submit"
-                disabled={submissionStatus === 'loading' || items.length === 0}
-              >
-                {submissionStatus === 'loading' ? 'Enviando...' : 'Enviar solicitud'}
-              </Button>
-            </Form>
-          </>
+        {errorMsg && (
+          <Alert variant="danger">{errorMsg}</Alert>
         )}
+        <Table responsive borderless className="mb-4">
+          <tbody>
+            {items.map((item, idx) => (
+              <tr key={item.product.id ?? item.product_id ?? idx}>
+                <td>{item.product?.name ?? item.name}</td>
+                <td className="text-center">{item.quantity}</td>
+                <td className="text-end">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-danger"
+                    onClick={() => onRemoveItem(item.product?.id ?? item.product_id)}
+                  >
+                    <i className="fas fa-trash-alt"></i>
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Nombre</Form.Label>
+            <Form.Control
+              type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              className="form-control-lg"
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="email"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              className="form-control-lg"
+              required
+            />
+          </Form.Group>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-100"
+            style={{ backgroundColor: 'var(--secondary-blue)', border: 'none', fontWeight: 500 }}
+            disabled={submissionStatus === 'loading' || items.length === 0}
+          >
+            {submissionStatus === 'loading' ? 'Enviando...' : <>Enviar Solicitud <i className="fas fa-paper-plane ms-2"></i></>}
+          </Button>
+          {/* Aseguramos que el estado submissionStatus no interfiera después del SweetAlert */}
+          {submissionStatus === 'success' && setSubmissionStatus(null)}
+        </Form>
       </Card.Body>
     </Card>
   );

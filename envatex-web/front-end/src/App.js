@@ -10,12 +10,13 @@ import React, { useState, useCallback } from 'react';
 import './App.css';
 
 // Routing
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 
 // UI
 import { Navbar, Container, Nav } from 'react-bootstrap';
 
 // Pages (to be created)
+import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Admin from './pages/Admin';
 import AdminLogin from './pages/AdminLogin';
@@ -26,6 +27,19 @@ import AdminLogin from './pages/AdminLogin';
 function App() {
   // Global cart state
   const [quotationItems, setQuotationItems] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(!!localStorage.getItem('access_token'));
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const onAuth = () => setIsAuthenticated(!!localStorage.getItem('access_token'));
+    window.addEventListener('storage', onAuth);
+    window.addEventListener('authChanged', onAuth);
+    return () => {
+      window.removeEventListener('storage', onAuth);
+      window.removeEventListener('authChanged', onAuth);
+    };
+  }, []);
 
   const handleAddToCart = useCallback((product) => {
     setQuotationItems((prev) => {
@@ -53,39 +67,89 @@ function App() {
     );
   }, []);
 
+  // NUEVO: función para limpiar el carrito
+  const handleClearCart = useCallback(() => {
+    setQuotationItems([]);
+  }, []);
+
   return (
-    <BrowserRouter>
       <div className="App">
-        <Navbar bg="light" expand="lg">
+        <Navbar className="custom-navbar" expand="lg" variant="dark">
           <Container>
-            <Navbar.Brand as={Link} to="/">Envatex</Navbar.Brand>
-            <Nav className="me-auto">
-              <Nav.Link as={Link} to="/">Home</Nav.Link>
-              <Nav.Link as={Link} to="/admin">Admin</Nav.Link>
-            </Nav>
+            {/* Conditional navbar: public vs admin */}
+              <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
+                <img
+                  src="/2.png"
+                  alt="Envatex"
+                  height="100"
+                  className="d-inline-block align-top me-1"
+                  style={{ filter: 'brightness(0) invert(1)' }}
+                />
+              </Navbar.Brand>
+            <Navbar.Toggle aria-controls="main-navbar" />
+            <Navbar.Collapse id="main-navbar">
+              {!isAuthenticated && (
+                <>
+                  <Nav className="me-auto">
+                    <Nav.Link as={Link} to="/">Home</Nav.Link>
+                  </Nav>
+                  <div className="d-flex align-items-center">
+                    {location.pathname !== '/' && location.pathname !== '/cotizar' && (
+                      <Link to="/cotizar">
+                        <button className="btn btn-primary custom me-3" aria-label="Solicitar Cotización">Solicitar Cotización</button>
+                      </Link>
+                    )}
+                    <Nav>
+                      <Nav.Link as={Link} to="/admin/login" className="text-nowrap text-white-50"><i className="fas fa-user-shield me-2" alt="Panel Admin"></i></Nav.Link>
+                    </Nav>
+                  </div>
+                </>
+              )}
+
+              {isAuthenticated && (
+                <div className="ms-auto d-flex align-items-center">
+                  {location.pathname !== '/admin' && (
+                    <Link to="/admin" className="btn btn-outline-light me-2">
+                      <i className="fas fa-columns me-2"></i>
+                      Panel
+                    </Link>
+                  )}
+
+                  <button
+                    className="btn btn-outline-light"
+                    onClick={() => {
+                      localStorage.removeItem('access_token');
+                      window.dispatchEvent(new Event('authChanged'));
+                      navigate('/admin/login');
+                    }}
+                  >
+                    Cerrar Sesión
+                  </button>
+                </div>
+              )}
+            </Navbar.Collapse>
           </Container>
         </Navbar>
 
         <main>
-          <Container className="my-4">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <Home
-                    items={quotationItems}
-                    onAddToCart={handleAddToCart}
-                    onRemoveItem={handleRemoveFromCart}
-                  />
-                }
-              />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-            </Routes>
-          </Container>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route
+              path="/cotizar"
+              element={
+                <Home
+                  items={quotationItems}
+                  onAddToCart={handleAddToCart}
+                  onRemoveItem={handleRemoveFromCart}
+                  onClearCart={handleClearCart}
+                />
+              }
+            />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+          </Routes>
         </main>
       </div>
-    </BrowserRouter>
   );
 }
 

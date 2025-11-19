@@ -21,6 +21,8 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 
+import cloudinary
+import cloudinary.uploader
 # ---------------------------------------------------------------------------- #
 # Application Factory
 # ---------------------------------------------------------------------------- #
@@ -47,10 +49,8 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', app.config['SECRET_KEY'])
     jwt = JWTManager(app)
     
-    # Configura CORS para permitir peticiones desde nuestro frontend de React
-    # (que se ejecutará en un origen diferente, ej: http://localhost:3000)
-    # EJEMPLO - USA LA URL DE TU FRONTEND
-    CORS(app)
+    # Configura CORS para permitir peticiones desde el front-end
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     # --- Importación y Registro de Modelos ---
     # Es crucial que los modelos se importen después de inicializar db
@@ -67,6 +67,17 @@ def create_app():
      # --- Registro de Rutas (Blueprints) ---
     from api.routes import api_bp
     app.register_blueprint(api_bp)
+    # --- Configuración de Cloudinary (si están presentes las variables) ---
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME')
+    cloud_api_key = os.getenv('CLOUDINARY_API_KEY')
+    cloud_api_secret = os.getenv('CLOUDINARY_API_SECRET')
+    if cloud_name and cloud_api_key and cloud_api_secret:
+        cloudinary.config(
+            cloud_name=cloud_name,
+            api_key=cloud_api_key,
+            api_secret=cloud_api_secret,
+            secure=True
+        )
 
     # --- Auto-crear usuario admin si se solicita (solo para desarrollo) ---
     if os.getenv('AUTO_CREATE_ADMIN', 'false').lower() == 'true':

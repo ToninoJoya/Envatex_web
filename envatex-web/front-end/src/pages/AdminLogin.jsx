@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 function AdminLogin() {
@@ -18,6 +18,8 @@ function AdminLogin() {
       const token = res.data.access_token;
       localStorage.setItem('access_token', token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // notify other parts of the app
+      try { window.dispatchEvent(new Event('authChanged')); } catch (e) {}
       navigate('/admin');
     } catch (err) {
       setError(err.response?.data?.error || 'Error de autenticación');
@@ -25,20 +27,49 @@ function AdminLogin() {
   };
 
   return (
-    <Container className="my-4">
-      <h2>Ingreso de Administrador</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-2" controlId="username">
-          <Form.Label>Usuario</Form.Label>
-          <Form.Control value={username} onChange={(e) => setUsername(e.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-2" controlId="password">
-          <Form.Label>Contraseña</Form.Label>
-          <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </Form.Group>
-        <Button type="submit">Entrar</Button>
-      </Form>
+    <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '80vh' }}>
+      <Row className="w-100 justify-content-center">
+        <Col md={5} lg={4}>
+          <Card className="shadow-sm border-0 p-0">
+            <div className="p-4 rounded-top" style={{ backgroundColor: 'var(--primary-navy)' }}>
+              <h4 className="text-white fw-bold mb-1" style={{ letterSpacing: '0.5px' }}>
+                <i className="fas fa-user-shield me-2"></i>
+                Acceso Administrador
+              </h4>
+            </div>
+            <Card.Body className="p-4">
+              {error && <Alert variant="danger">{error}</Alert>}
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="username">
+                  <Form.Label className="fw-bold text-muted">Usuario</Form.Label>
+                  <Form.Control
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="form-control-lg"
+                    autoFocus
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="password">
+                  <Form.Label className="fw-bold text-muted">Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="form-control-lg"
+                  />
+                </Form.Group>
+                <Button
+                  type="submit"
+                  className="w-100"
+                  style={{ backgroundColor: 'var(--secondary-blue)', border: 'none', fontWeight: 500 }}
+                >
+                  Entrar <i className="fas fa-sign-in-alt ms-2"></i>
+                </Button>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
     </Container>
   );
 }

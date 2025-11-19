@@ -12,3 +12,5 @@ Flask-Cors
 python-dotenv
 # JSON Web Token support for authentication
 Flask-JWT-Extended
+# Cloudinary SDK for image uploads
+cloudinary

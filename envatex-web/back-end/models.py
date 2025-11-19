@@ -68,6 +68,7 @@ class QuotationItem(db.Model):
             'quantity': self.quantity,
             'quotation_id': self.quotation_id,
             'product_id': self.product_id,
+            'product': self.product.to_dict() if self.product else None,  # Incluir datos del producto
         }
 
 

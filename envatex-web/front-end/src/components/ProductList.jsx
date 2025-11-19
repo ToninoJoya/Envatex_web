@@ -69,7 +69,28 @@ function ProductList({ onAddToCart }) {
 
   return (
     <Container className="my-4">
-      <h2 className="mb-4">Nuestro Catálogo de Productos</h2>
+      {/* Encabezado elegante */}
+      <div className="mb-4">
+        <h2
+          className="fw-bold"
+          style={{
+            color: 'var(--primary-navy)',
+            letterSpacing: '0.5px',
+            marginBottom: '0.5rem'
+          }}
+        >
+          Nuestros Productos
+        </h2>
+        <p className="text-muted mb-2">
+          Selecciona los ítems que necesitas y añádelos a tu cotización.
+        </p>
+        <div
+          style={{
+            borderBottom: '2px solid #e3e6ea',
+            marginBottom: '1.5rem'
+          }}
+        />
+      </div>
 
       {loading && (
         <div className="d-flex justify-content-center py-5">
@@ -93,17 +114,35 @@ function ProductList({ onAddToCart }) {
 
           {products.map((p) => (
             <Col key={p.id} xs={12} sm={6} md={4} className="mb-4">
-              <Card className="h-100">
-                {p.image_url && (
-                  <Card.Img variant="top" src={p.image_url} alt={p.name} />
+              <Card className="h-100 shadow-sm border-0 product-card-hover">
+                {p.image_url ? (
+                  <div style={{ height: '200px', overflow: 'hidden' }}>
+                    <Card.Img
+                      variant="top"
+                      src={p.image_url}
+                      alt={p.name}
+                      style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-light d-flex align-items-center justify-content-center" style={{ height: '200px' }}>
+                    <i className="fas fa-image fa-3x text-muted"></i>
+                  </div>
                 )}
                 <Card.Body className="d-flex flex-column">
-                  <Card.Title>{p.name}</Card.Title>
+                  {/* Título del producto más sutil */}
+                  <h6 className="fw-bold mb-2" style={{ color: 'var(--primary-navy)' }}>
+                    {p.name}
+                  </h6>
                   {p.sku && <Card.Subtitle className="mb-2 text-muted">SKU: {p.sku}</Card.Subtitle>}
                   {p.description && <Card.Text className="flex-grow-1">{p.description}</Card.Text>}
                   <div className="mt-3">
-                    <Button variant="primary" onClick={() => onAddToCart && onAddToCart(p)}>
-                      Añadir a la cotización
+                    <Button
+                      style={{ backgroundColor: 'var(--secondary-blue)', border: 'none', fontWeight: 500 }}
+                      className="w-100"
+                      onClick={() => onAddToCart && onAddToCart(p)}
+                    >
+                      Agregar <i className="fas fa-cart-plus ms-2"></i>
                     </Button>
                   </div>
                 </Card.Body>

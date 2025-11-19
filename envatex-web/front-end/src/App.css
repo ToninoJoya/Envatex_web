@@ -1,3 +1,109 @@
-body {
-  background-color: #f8f9fa; /* Un gris claro para el fondo */
+:root{
+  --primary-navy: #0d253f; /* Azul Marino Profundo */
+  --secondary-blue: #4fa3d1; /* Azul Claro para acentos */
+  --light-gray: #f8f9fa; /* Fondo limpio */
+  --text-dark: #333333;
+  --muted: #6c757d;
+  --radius: 8px;
 }
+
+/* Global body */
+body {
+  background-color: var(--light-gray);
+  color: var(--text-dark);
+  font-family: 'Roboto', 'Open Sans', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin: 0;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Custom Navbar used by the app */
+.custom-navbar{
+  background-color: var(--primary-navy) !important;
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(13,37,63,0.12);
+}
+.custom-navbar .navbar-brand{
+  color: white !important;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.custom-navbar .nav-link{
+  color: rgba(255,255,255,0.9) !important;
+}
+.custom-navbar .nav-link:hover{
+  color: var(--secondary-blue) !important;
+}
+
+/* Buttons and accents */
+.btn-primary.custom {
+  background: linear-gradient(180deg, var(--secondary-blue), #3b93c2);
+  border: none;
+  color: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(79,163,209,0.18);
+}
+.btn-primary.custom:hover{
+  background: linear-gradient(180deg, #57b0db, #3b93c2);
+}
+
+/* Cards & Panels */
+.card.custom-card{
+  border: none;
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: 0 8px 28px rgba(13,37,63,0.06);
+}
+
+/* Tables */
+.table thead th{
+  background: transparent;
+  color: var(--text-dark);
+  border-bottom: 2px solid rgba(0,0,0,0.05);
+}
+
+/* Form controls */
+.form-control{
+  border-radius: 6px;
+}
+
+/* Small utilities */
+.muted {
+  color: var(--muted);
+}
+
+/* Responsive spacing */
+@media (max-width: 576px){
+  .custom-navbar .navbar-brand{ font-size: 1rem; }
+}
+
+/* End of custom theme */
+
+/* Landing hero styles */
+.hero{
+  background: var(--primary-navy);
+  color: white;
+  padding: 64px 0;
+}
+.hero-title{
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+.hero-subtitle{
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.9);
+}
+.cta-primary{
+  background-color: var(--secondary-blue) !important;
+  border-color: transparent !important;
+  color: white !important;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+}
+.cta-primary:hover{
+  background-color: #3aa0d0 !important;
+}
+
+/* Features section */
+.muted { color: var(--muted); }
+.custom-card { background: white; }
