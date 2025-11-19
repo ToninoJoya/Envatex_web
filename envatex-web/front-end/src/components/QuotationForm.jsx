@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Form, Button, Card, ListGroup, Alert } from 'react-bootstrap';
+import { Form, Button, Card, ListGroup, Alert, Row, Col } from 'react-bootstrap';
 
 // QuotationForm.jsx
 // A form for customers to enter their details and submit their quotation request.
 
-function QuotationForm({ items = [] }) {
+function QuotationForm({ items = [], onRemoveItem }) {
   // 6. Inside the component, use useState to manage the form data:
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -55,11 +55,26 @@ function QuotationForm({ items = [] }) {
           <>
             <ListGroup className="mb-3">
               {items.map((it, idx) => {
-                const name = it.product?.name ?? it.name ?? `Producto ${it.product_id ?? idx}`;
+                const productId = it.product?.id ?? it.product_id ?? null;
+                const name = it.product?.name ?? it.name ?? `Producto ${productId ?? idx}`;
                 const qty = it.quantity ?? 1;
                 return (
                   <ListGroup.Item key={idx}>
-                    {name} — Cantidad: {qty}
+                    <Row className="align-items-center">
+                      <Col>
+                        {name} — Cantidad: {qty}
+                      </Col>
+                      <Col xs="auto">
+                        <Button
+                          variant="outline-secondary"
+                          size="sm"
+                          onClick={() => onRemoveItem && onRemoveItem(productId)}
+                          className="me-2"
+                        >
+                          −
+                        </Button>
+                      </Col>
+                    </Row>
                   </ListGroup.Item>
                 );
               })}

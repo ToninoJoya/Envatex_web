@@ -10,3 +10,5 @@ Flask-Migrate
 Flask-Cors
 # For loading environment variables from a .env file
 python-dotenv
+# JSON Web Token support for authentication
+Flask-JWT-Extended

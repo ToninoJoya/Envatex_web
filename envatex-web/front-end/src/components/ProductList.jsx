@@ -53,7 +53,8 @@ function ProductList({ onAddToCart }) {
 
     const fetchProducts = async () => {
       try {
-        const res = await axios.get('https://didactic-space-fiesta-g4r6x4549q9xfpvq5-5000.app.github.dev/api/products');
+        const API_BASE = process.env.REACT_APP_API_URL || 'https://didactic-space-fiesta-g4r6x4549q9xfpvq5-5000.app.github.dev/';
+        const res = await axios.get(`${API_BASE}/api/products`);
         if (mounted) setProducts(res.data || []);
       } catch (err) {
         if (mounted) setError('No se pudieron cargar los productos. Intenta más tarde.');

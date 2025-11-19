@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
@@ -41,6 +42,10 @@ def create_app():
     # Se conectan las extensiones instanciadas previamente con la aplicación.
     db.init_app(app)
     migrate.init_app(app, db)
+    # Configurar JWT
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret')
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', app.config['SECRET_KEY'])
+    jwt = JWTManager(app)
     
     # Configura CORS para permitir peticiones desde nuestro frontend de React
     # (que se ejecutará en un origen diferente, ej: http://localhost:3000)
@@ -62,6 +67,24 @@ def create_app():
      # --- Registro de Rutas (Blueprints) ---
     from api.routes import api_bp
     app.register_blueprint(api_bp)
+
+    # --- Auto-crear usuario admin si se solicita (solo para desarrollo) ---
+    if os.getenv('AUTO_CREATE_ADMIN', 'false').lower() == 'true':
+        admin_user = os.getenv('ADMIN_USER')
+        admin_pass = os.getenv('ADMIN_PASSWORD')
+        if admin_user and admin_pass:
+            with app.app_context():
+                try:
+                    from models import User
+                    existing = User.query.filter_by(username=admin_user).first()
+                    if not existing:
+                        u = User(username=admin_user)
+                        u.set_password(admin_pass)
+                        db.session.add(u)
+                        db.session.commit()
+                        print(f"Created admin user '{admin_user}' via AUTO_CREATE_ADMIN")
+                except Exception as e:
+                    print('AUTO_CREATE_ADMIN failed:', e)
 
     @app.route('/api/health')
     def health_check():
