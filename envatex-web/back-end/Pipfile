@@ -9,6 +9,12 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-cors = "*"
 python-dotenv = "*"
+flask-jwt-extended = "*"
+cloudinary = "*"
+
+[scripts]
+start = "flask run --host=0.0.0.0"
+dev = "flask run --host=0.0.0.0 --debug"
 
 [dev-packages]
 

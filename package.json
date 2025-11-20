@@ -1,4 +1,15 @@
 {
+  "name": "envatex-web",
+  "version": "1.0.0",
+  "description": "Proyecto Fullstack - React + Flask",
+  "scripts": {
+    "install:backend": "cd envatex-web/back-end && pip install -r requirements.txt",
+    "install:frontend": "cd envatex-web/front-end && npm install",
+    "install": "npm run install:backend && npm run install:frontend",
+    "start:backend": "cd envatex-web/back-end && flask run --host=0.0.0.0",
+    "start:frontend": "cd envatex-web/front-end && npm start",
+    "start": "echo 'Para iniciar el backend: npm run start:backend' && echo 'Para iniciar el frontend: npm run start:frontend'"
+  },
   "dependencies": {
     "react-router-dom": "^7.9.6",
     "sweetalert2": "^11.26.3"
